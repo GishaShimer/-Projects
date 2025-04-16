@@ -1,0 +1,4 @@
+﻿  Exam EX 3.cpp
+C:\Users\Aleksey\source\repos\Exam EX 3\Exam EX 3\Exam EX 3.cpp(48,19): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+C:\Users\Aleksey\source\repos\Exam EX 3\Exam EX 3\Exam EX 3.cpp(255,33): warning C4244: инициализация: преобразование "double" в "__int64", возможна потеря данных
+  Exam EX 3.vcxproj -> C:\Users\Aleksey\source\repos\Exam EX 3\x64\Debug\Exam EX 3.exe
