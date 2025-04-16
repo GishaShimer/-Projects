@@ -1,0 +1,163 @@
+#include <iostream>
+#include <memory>
+#include <string>
+#include <utility>
+
+using namespace std;
+
+class Box {
+private:
+    string info;
+
+public:
+    Box(const string& _info) : info(_info) {}
+    virtual ~Box() = default;
+    string GetInfo() const { return info; }
+    void SetInfo(const string& newInfo) { info = newInfo; }
+    virtual void Print() const { cout << info << "\n"; }
+};
+
+class Processor {
+private:
+    string info;
+
+public:
+    Processor(const string& _info) : info(_info) {}
+    virtual ~Processor() = default;
+    string GetInfo() const { return info; }
+    void SetInfo(const string& newInfo) { info = newInfo; }
+    virtual void Print() const { cout << info << "\n"; }
+};
+
+class MainBoard {
+private:
+    string info;
+
+public:
+    MainBoard(const string& _info) : info(_info) {}
+    virtual ~MainBoard() = default;
+    string GetInfo() const { return info; }
+    void SetInfo(const string& newInfo) { info = newInfo; }
+    virtual void Print() const { cout << info << "\n"; }
+};
+
+class SilverBox : public Box {
+public:
+    SilverBox() : Box("Silver Box") {}
+};
+
+class ProcessorIntel : public Processor {
+public:
+    ProcessorIntel() : Processor("Intel Processor") {}
+};
+
+class MainBoardIntel : public MainBoard {
+public:
+    MainBoardIntel() : MainBoard("Intel MainBoard") {}
+};
+
+class BlackBox : public Box {
+public:
+    BlackBox() : Box("Black Box") {}
+};
+
+class ProcessorAMD : public Processor {
+public:
+    ProcessorAMD() : Processor("AMD Processor") {}
+};
+
+class MainBoardAMD : public MainBoard {
+public:
+    MainBoardAMD() : MainBoard("AMD MainBoard") {}
+};
+
+class IPcFactory {
+public:
+    virtual unique_ptr<Box> CreateBox() const = 0;
+    virtual unique_ptr<Processor> CreateProcessor() const = 0;
+    virtual unique_ptr<MainBoard> CreateMainBoard() const = 0;
+    virtual ~IPcFactory() = default;
+};
+
+class OfficePcFactory : public IPcFactory {
+public:
+    unique_ptr<Box> CreateBox() const override {
+        return make_unique<SilverBox>();
+    }
+
+    unique_ptr<Processor> CreateProcessor() const override {
+        return make_unique<ProcessorIntel>();
+    }
+
+    unique_ptr<MainBoard> CreateMainBoard() const override {
+        return make_unique<MainBoardIntel>();
+    }
+};
+
+class HomePcFactory : public IPcFactory {
+public:
+    unique_ptr<Box> CreateBox() const override {
+        return make_unique<BlackBox>();
+    }
+
+    unique_ptr<Processor> CreateProcessor() const override {
+        return make_unique<ProcessorAMD>();
+    }
+
+    unique_ptr<MainBoard> CreateMainBoard() const override {
+        return make_unique<MainBoardAMD>();
+    }
+};
+
+class Pc {
+private:
+    unique_ptr<Box> box;
+    unique_ptr<Processor> processor;
+    unique_ptr<MainBoard> mainBoard;
+
+public:
+    Pc(unique_ptr<Box> box, unique_ptr<Processor> processor, unique_ptr<MainBoard> mainBoard)
+        : box(move(box)), processor(move(processor)), mainBoard(move(mainBoard)) {}
+
+    ~Pc() = default;
+
+    const Box* GetBox() const { return box.get(); }
+    const Processor* GetProcessor() const { return processor.get(); }
+    const MainBoard* GetMainBoard() const { return mainBoard.get(); }
+
+    void Print() const {
+        box->Print();
+        processor->Print();
+        mainBoard->Print();
+    }
+};
+
+class PcConfigurator {
+private:
+    unique_ptr<IPcFactory> pcFactory;
+
+public:
+    PcConfigurator(unique_ptr<IPcFactory> factory) : pcFactory(move(factory)) {}
+
+    unique_ptr<Pc> GetPC() const {
+        unique_ptr<Box> box = pcFactory->CreateBox();
+        unique_ptr<Processor> processor = pcFactory->CreateProcessor();
+        unique_ptr<MainBoard> mainBoard = pcFactory->CreateMainBoard();
+
+        return make_unique<Pc>(move(box), move(processor), move(mainBoard));
+    }
+};
+
+int main() {
+    PcConfigurator officePcConfig(make_unique<OfficePcFactory>());
+    PcConfigurator homePcConfig(make_unique<HomePcFactory>());
+
+    cout << "Office PC Components:\n";
+    unique_ptr<Pc> officePc = officePcConfig.GetPC();
+    officePc->Print();
+
+    cout << "Home PC Components:\n";
+    unique_ptr<Pc> homePc = homePcConfig.GetPC();
+    homePc->Print();
+
+}
